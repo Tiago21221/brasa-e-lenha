@@ -117,7 +117,7 @@ export function Header() {
       >
         <div className="mb-6 flex items-center justify-between">
           <span className="font-oswald text-xl font-bold text-with-100">
-            logo
+            Menu
           </span>
           <button
             type="button"
