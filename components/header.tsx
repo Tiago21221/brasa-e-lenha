@@ -1,80 +1,180 @@
 "use client"
 
-import Image from "next/image"
+import React, { useState } from "react"
 import Link from "next/link"
-import { ShoppingCart, Calendar } from "lucide-react"
-import { useCart } from "@/lib/cart"
-import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
+import { Menu, X, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { useCart } from "@/lib/cart"
 
 export function Header() {
+  const [open, setOpen] = useState(false)
+
+  // Zustand cart store
   const { getTotalItems } = useCart()
-  const totalItems = getTotalItems()
-  const [pendingReservations, setPendingReservations] = useState(0)
+  const cartCount = getTotalItems()
 
-  useEffect(() => {
-    const loadPendingCount = () => {
-      try {
-        const data = localStorage.getItem("reservations")
-        if (data) {
-          const reservations = JSON.parse(data)
-          const pending = reservations.filter((r: any) => r.status === "pending").length
-          setPendingReservations(pending)
-        }
-      } catch (error) {
-        console.error("[v0] Error loading pending reservations:", error)
-      }
-    }
-
-    loadPendingCount()
-    const interval = setInterval(loadPendingCount, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  const toggleMenu = () => setOpen(prev => !prev)
+  const closeMenu = () => setOpen(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-3">
-          <Image src="/Logo.png" alt="Brasa e Lenha" width={50} height={50} className="h-12 w-auto" />
-          <div className="flex flex-col">
-            <span className="font-oswald text-xl font-bold tracking-wide text-primary">BRASA E LENHA</span>
-            <span className="text-xs text-muted-foreground">Churrascaria Delivery</span>
-          </div>
-        </Link>
+    <>
+      {/* Barra fixa no topo */}
+      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3">
+          {/* Logo + nome + subtítulo em vermelho */}
+          <Link
+            href="/"
+            onClick={closeMenu}
+            className="flex items-center gap-2"
+          >
+            <Image
+              src="/logo-brasa-lenha.png"  // ajuste se o caminho da logo for outro
+              alt="Brasa e Lenha"
+              width={42}
+              height={42}
+              className="rounded"
+            />
+            <div className="flex flex-col leading-tight">
+              <span className="font-oswald text-2xl font-bold tracking-tight text-red-600">
+                Brasa e Lenha
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                Churrascaria Delivery
+              </span>
+            </div>
+          </Link>
 
-        <nav className="flex items-center gap-4">
-          <Link href="/cardapio">
-            <Button variant="ghost">Cardápio</Button>
-          </Link>
-          <Link href="/reservas">
-            <Button variant="ghost" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              Reservas
+          {/* Navegação desktop */}
+          <nav className="hidden items-center gap-3 md:flex">
+              <Link href="/cardapio">
+              <Button variant="outline" size="sm" className="font-semibold">
+                cardápio
+              </Button>
+            </Link>
+
+            <Link href="/reservas">
+              <Button variant="outline" size="sm" className="font-semibold">
+                Reserva
+              </Button>
+            </Link>
+
+            {/* Carrinho: só ícone + badge */}
+            <Link href="/carrinho">
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative font-semibold"
+                aria-label="Carrinho"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            <Link href="/admin">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="font-semibold text-red-600"
+              >
+                Admin
+              </Button>
+            </Link>
+          </nav>
+
+          {/* Botão hambúrguer (mobile) */}
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-md p-2 hover:bg-accent md:hidden"
+            onClick={toggleMenu}
+            aria-label="Abrir menu"
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Overlay escuro (mobile) */}
+      {open && (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={closeMenu}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      {/* Menu lateral mobile */}
+      <aside
+        className={`fixed right-0 top-0 z-50 flex h-full w-64 flex-col border-l bg-background px-6 py-6 shadow-lg transition-transform duration-200 md:hidden ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <span className="font-oswald text-xl font-bold text-with-100">
+            logo
+          </span>
+          <button
+            type="button"
+            onClick={closeMenu}
+            aria-label="Fechar menu"
+            className="rounded-md p-1 hover:bg-accent"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <nav className="flex flex-col gap-3">
+          <Link href="/cardapio" onClick={closeMenu}>
+            <Button
+              variant="outline"
+              className="w-full justify-start font-semibold"
+            >
+              cardápio
             </Button>
           </Link>
-          <Link href="/carrinho">
-            <Button variant="ghost" size="icon" className="relative">
+
+
+          <Link href="/reservas" onClick={closeMenu}>
+            <Button
+              variant="outline"
+              className="w-full justify-start font-semibold"
+            >
+              Reserva
+            </Button>
+          </Link>
+
+          <Link href="/carrinho" onClick={closeMenu}>
+            <Button
+              variant="outline"
+              className="relative w-full justify-start font-semibold gap-2"
+              aria-label="Carrinho"
+            >
               <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <Badge className="absolute -right-1 -top-1 h-5 min-w-5 rounded-full px-1 text-xs" variant="destructive">
-                  {totalItems}
-                </Badge>
+              <span>Carrinho</span>
+              {cartCount > 0 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
+                  {cartCount}
+                </span>
               )}
             </Button>
           </Link>
-          <Link href="/admin">
-            <Button variant="outline" size="sm" className="relative bg-transparent">
+
+          <Link href="/admin" onClick={closeMenu}>
+            <Button
+              variant="ghost"
+              className="w-full justify-start font-semibold text-red-600"
+            >
               Admin
-              {pendingReservations > 0 && (
-                <Badge className="absolute -right-2 -top-2 h-5 min-w-5 rounded-full px-1 text-xs" variant="destructive">
-                  {pendingReservations}
-                </Badge>
-              )}
             </Button>
           </Link>
         </nav>
-      </div>
-    </header>
+      </aside>
+    </>
   )
 }
