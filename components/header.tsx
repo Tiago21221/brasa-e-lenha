@@ -2,14 +2,35 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Calendar } from "lucide-react"
 import { useCart } from "@/lib/cart"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
 
 export function Header() {
   const { getTotalItems } = useCart()
   const totalItems = getTotalItems()
+  const [pendingReservations, setPendingReservations] = useState(0)
+
+  useEffect(() => {
+    const loadPendingCount = () => {
+      try {
+        const data = localStorage.getItem("reservations")
+        if (data) {
+          const reservations = JSON.parse(data)
+          const pending = reservations.filter((r: any) => r.status === "pending").length
+          setPendingReservations(pending)
+        }
+      } catch (error) {
+        console.error("[v0] Error loading pending reservations:", error)
+      }
+    }
+
+    loadPendingCount()
+    const interval = setInterval(loadPendingCount, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,6 +47,12 @@ export function Header() {
           <Link href="/cardapio">
             <Button variant="ghost">Cardápio</Button>
           </Link>
+          <Link href="/reservas">
+            <Button variant="ghost" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Reservas
+            </Button>
+          </Link>
           <Link href="/carrinho">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
@@ -37,8 +64,13 @@ export function Header() {
             </Button>
           </Link>
           <Link href="/admin">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="relative bg-transparent">
               Admin
+              {pendingReservations > 0 && (
+                <Badge className="absolute -right-2 -top-2 h-5 min-w-5 rounded-full px-1 text-xs" variant="destructive">
+                  {pendingReservations}
+                </Badge>
+              )}
             </Button>
           </Link>
         </nav>

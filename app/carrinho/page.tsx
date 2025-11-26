@@ -125,7 +125,7 @@ export default function CarrinhoPage() {
 							Carrinho Vazio
 						</h1>
 						<p className="mb-6 text-muted-foreground">
-							Adicione itens ao carrinho para fazer seu pedido
+							Adicione itens ao carrinho para  seu pedido
 						</p>
 						<Button onClick={() => router.push("/cardapio")}>
 							Ver Cardápio

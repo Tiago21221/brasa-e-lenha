@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import type { OrderWithItems } from "@/lib/types"
-import { RefreshCw, Package, Clock, ChefHat, Truck, CheckCircle2 } from "lucide-react"
+import { RefreshCw, Package, Clock, ChefHat, Truck, CheckCircle2, Calendar } from "lucide-react"
 import { toast } from "sonner"
 import { useOrderNotifications } from "@/lib/order-notifier"
+import Link from "next/link"
 
 export default function AdminPage() {
   useOrderNotifications()
@@ -18,6 +19,13 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
+
+  useEffect(() => {
+    fetchOrders()
+
+    const interval = setInterval(fetchOrders, 15000)
+    return () => clearInterval(interval)
+  }, [])
 
   const fetchOrders = async () => {
     try {
@@ -44,13 +52,6 @@ export default function AdminPage() {
       setRefreshing(false)
     }
   }
-
-  useEffect(() => {
-    fetchOrders()
-
-    const interval = setInterval(fetchOrders, 15000)
-    return () => clearInterval(interval)
-  }, [])
 
   const handleRefresh = () => {
     setRefreshing(true)
@@ -88,15 +89,23 @@ export default function AdminPage() {
     <>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="font-oswald text-3xl font-bold md:text-4xl">Painel Administrativo</h1>
-            <p className="text-muted-foreground">Gerencie os pedidos do restaurante</p>
+            <p className="text-muted-foreground">Gerencie os pedidos e reservas do restaurante</p>
           </div>
-          <Button onClick={handleRefresh} disabled={refreshing} variant="outline" size="sm">
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            Atualizar
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/admin/reservas">
+              <Button variant="outline" className="gap-2 bg-transparent">
+                <Calendar className="h-4 w-4" />
+                Gerenciar Reservas
+              </Button>
+            </Link>
+            <Button onClick={handleRefresh} disabled={refreshing} variant="outline" size="sm">
+              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              Atualizar
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
