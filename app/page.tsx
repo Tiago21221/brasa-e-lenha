@@ -18,8 +18,7 @@ async function getMenuData() {
     where: {
       available: true,
     },
-    orderBy: [{ categoryId: "asc" }, { name: "asc" }],
-  })
+  });
 
   return { categories, products }
 }
@@ -94,7 +93,7 @@ export default async function HomePage() {
 
             {categories.map((category) => {
               const categoryProducts = products.filter((p) => p.categoryId === category.id)
-              return <CategorySection key={category.id} title={category.name} products={categoryProducts.slice(0, 4)} />
+              return <CategorySection key={category.id} title={category.name} products={categoryProducts.sort(() => Math.random() - 0.5).slice(0, 4)} />
             })}
 
             <div className="text-center">
