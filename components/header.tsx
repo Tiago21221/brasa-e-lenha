@@ -1,21 +1,22 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Menu, X, ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useCart } from "@/lib/cart"
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, X, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/lib/cart";
 
 export function Header() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   // Zustand cart store
-  const { getTotalItems } = useCart()
-  const cartCount = getTotalItems()
+  const { getTotalItems } = useCart();
+  const cartCount = getTotalItems();
 
-  const toggleMenu = () => setOpen(prev => !prev)
-  const closeMenu = () => setOpen(false)
+  const toggleMenu = () => setOpen((prev) => !prev);
+  const closeMenu = () => setOpen(false);
 
   return (
     <>
@@ -29,7 +30,7 @@ export function Header() {
             className="flex items-center gap-2"
           >
             <Image
-              src="/logo-brasa-lenha.png"  // ajuste se o caminho da logo for outro
+              src="/logo-brasa-lenha.png" // ajuste se o caminho da logo for outro
               alt="Brasa e Lenha"
               width={42}
               height={42}
@@ -47,7 +48,7 @@ export function Header() {
 
           {/* Navegação desktop */}
           <nav className="hidden items-center gap-3 md:flex">
-              <Link href="/cardapio">
+            <Link href="/cardapio">
               <Button variant="outline" size="sm" className="font-semibold">
                 cardápio
               </Button>
@@ -115,7 +116,7 @@ export function Header() {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <span className="font-oswald text-xl font-bold text-with-100">
             Menu
           </span>
@@ -129,6 +130,9 @@ export function Header() {
           </button>
         </div>
 
+        {/* Barrinha divisória abaixo do título */}
+        <Separator className="mb-4" />
+
         <nav className="flex flex-col gap-3">
           <Link href="/cardapio" onClick={closeMenu}>
             <Button
@@ -138,7 +142,6 @@ export function Header() {
               cardápio
             </Button>
           </Link>
-
 
           <Link href="/reservas" onClick={closeMenu}>
             <Button
@@ -152,7 +155,7 @@ export function Header() {
           <Link href="/carrinho" onClick={closeMenu}>
             <Button
               variant="outline"
-              className="relative w-full justify-start font-semibold gap-2"
+              className="relative w-full justify-start gap-2 font-semibold"
               aria-label="Carrinho"
             >
               <ShoppingCart className="h-5 w-5" />
@@ -176,5 +179,5 @@ export function Header() {
         </nav>
       </aside>
     </>
-  )
+  );
 }
