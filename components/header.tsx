@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShoppingCart } from "lucide-react";
@@ -10,10 +10,17 @@ import { useCart } from "@/lib/cart";
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Zustand cart store
   const { getTotalItems } = useCart();
-  const cartCount = getTotalItems();
+  const cartCount = mounted ? getTotalItems() : 0;
+
+  // Rehydrate cart on mount
+  useEffect(() => {
+    setMounted(true);
+    useCart.persist.rehydrate();
+  }, []);
 
   const toggleMenu = () => setOpen((prev) => !prev);
   const closeMenu = () => setOpen(false);
