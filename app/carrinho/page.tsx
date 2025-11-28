@@ -95,7 +95,8 @@ export default function CarrinhoPage() {
 
 			if (!response.ok) {
 				console.error("[v0] Order creation failed:", data);
-				throw new Error(data.error || "Erro ao criar pedido");
+				const errorMessage = data.details || data.error || "Erro ao criar pedido";
+				throw new Error(errorMessage);
 			}
 
 			console.log("[v0] Order created successfully:", data.orderId);
@@ -104,7 +105,8 @@ export default function CarrinhoPage() {
 			router.push(`/pedido/${data.orderId}`);
 		} catch (error) {
 			console.error("[v0] Error creating order:", error);
-			toast.error("Erro ao processar pedido. Tente novamente.");
+			const errorMessage = error instanceof Error ? error.message : "Erro ao processar pedido";
+			toast.error(errorMessage);
 		} finally {
 			setLoading(false);
 		}

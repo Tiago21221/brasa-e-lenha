@@ -38,32 +38,58 @@ export async function POST(request: NextRequest) {
       ? (customerAddress || "Retirada no Restaurante")
       : customerAddress
 
-    const order = await prisma.order.create({
-      data: {
-        customerName,
-        customerPhone,
-        customerAddress: finalAddress,
-        deliveryType: deliveryType || "delivery",
-        totalCents,
-        paymentMethod,
-        paymentStatus: paymentMethod === "card" ? "paid" : "pending",
-        stripeSessionId: stripeSessionId || null,
-        notes: notes || null,
-        status: "pending",
-        items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            productName: item.name,
-            productPriceCents: item.price,
-            quantity: item.quantity,
-            subtotalCents: item.price * item.quantity,
-          })),
+    // Preparar dados do pedido
+    const orderData: any = {
+      customerName,
+      customerPhone,
+      customerAddress: finalAddress,
+      totalCents,
+      paymentMethod,
+      paymentStatus: paymentMethod === "card" ? "paid" : "pending",
+      stripeSessionId: stripeSessionId || null,
+      notes: notes || null,
+      status: "pending",
+      items: {
+        create: items.map((item: any) => ({
+          productId: item.productId,
+          productName: item.name,
+          productPriceCents: item.price,
+          quantity: item.quantity,
+          subtotalCents: item.price * item.quantity,
+        })),
+      },
+    }
+
+    // Tentar adicionar deliveryType (pode não existir no banco ainda)
+    if (deliveryType) {
+      orderData.deliveryType = deliveryType
+    }
+
+    let order
+    try {
+      // Tentar criar com deliveryType
+      order = await prisma.order.create({
+        data: orderData,
+        include: {
+          items: true,
         },
-      },
-      include: {
-        items: true,
-      },
-    })
+      })
+    } catch (firstError: any) {
+      // Se o erro for relacionado ao campo deliveryType não existir, tentar sem ele
+      const errorMessage = firstError?.message || ""
+      if (errorMessage.includes("delivery_type") || errorMessage.includes("deliveryType") || errorMessage.includes("Unknown column")) {
+        console.log("[v0] deliveryType field not found, creating order without it")
+        delete orderData.deliveryType
+        order = await prisma.order.create({
+          data: orderData,
+          include: {
+            items: true,
+          },
+        })
+      } else {
+        throw firstError
+      }
+    }
 
     console.log("[v0] Order created with ID:", order.id)
 
