@@ -1,5 +1,5 @@
 import { ProductCard } from "./product-card";
-import type { Product } from "@prisma/client";
+import type { Product } from "@/lib/db";
 
 interface CategorySectionProps {
 	title: string;
@@ -22,12 +22,11 @@ export function CategorySection({ title, products }: CategorySectionProps) {
 						key={product.id}
 						id={product.id}
 						name={product.name}
-						description={product.description || ""}
+						description={product.description}
 						price={product.priceInCents}
-						image={product.imageUrl || ""}
-						ingredients={product.ingredients || undefined}
+						image={product.imageUrl}
 					/>
-				)) }
+				))}
 			</div>
 		</section>
 	);

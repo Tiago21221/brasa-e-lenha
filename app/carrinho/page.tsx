@@ -73,7 +73,9 @@ export default function CarrinhoPage() {
 				body: JSON.stringify({
 					customerName: formData.name,
 					customerPhone: formData.phone,
-					customerAddress: formData.address,
+					customerAddress: formData.deliveryType === "pickup" 
+						? (formData.address || "Retirada no Restaurante")
+						: formData.address,
 					deliveryType: formData.deliveryType,
 					paymentMethod: formData.paymentMethod,
 					notes: formData.notes,

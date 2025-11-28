@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     if (
       !customerName ||
       !customerPhone ||
-      !customerAddress ||
       !paymentMethod ||
       !items ||
       !Array.isArray(items) ||
@@ -29,11 +28,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    // Validar endereço apenas para delivery
+    if (deliveryType === "delivery" && !customerAddress) {
+      return NextResponse.json({ error: "Address is required for delivery" }, { status: 400 })
+    }
+
+    // Usar endereço padrão para retirada se não fornecido
+    const finalAddress = deliveryType === "pickup" 
+      ? (customerAddress || "Retirada no Restaurante")
+      : customerAddress
+
     const order = await prisma.order.create({
       data: {
         customerName,
         customerPhone,
-        customerAddress,
+        customerAddress: finalAddress,
         deliveryType: deliveryType || "delivery",
         totalCents,
         paymentMethod,
@@ -61,10 +70,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, orderId: order.id })
   } catch (error) {
     console.error("[v0] Error creating order:", error)
+    
+    // Verifica se o erro é relacionado ao campo deliveryType não existir no banco
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    if (errorMessage.includes("delivery_type") || errorMessage.includes("deliveryType")) {
+      return NextResponse.json(
+        {
+          error: "Database migration required",
+          details: "O campo deliveryType não existe no banco de dados. Execute a migração: npm run prisma:push ou execute o script scripts/004_add_delivery_type.sql",
+        },
+        { status: 500 },
+      )
+    }
+    
     return NextResponse.json(
       {
         error: "Failed to create order",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: errorMessage,
       },
       { status: 500 },
     )
