@@ -78,11 +78,11 @@ export function ProductCard({
               e.stopPropagation(); // não abrir modal ao clicar só no botão
               handleAddToCart();
             }}
-            className="w-full gap-2"
+            className="w-full gap-2 transition-all duration-200 hover:scale-[1.02] hover:brightness-110 hover:shadow-xl active:scale-[0.98] active:brightness-95"
             size="lg"
           >
             <Plus className="h-4 w-4" />
-            + Adicionar ao Carrinho
+            Adicionar ao Carrinho
           </Button>
         </CardFooter>
       </Card>

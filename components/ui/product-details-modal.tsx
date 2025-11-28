@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 
@@ -64,8 +65,10 @@ export function ProductDetailsModal({
               onAddToCart();
               onClose();
             }}
+            className="gap-2 transition-all duration-200 hover:scale-[1.02] hover:brightness-110 hover:shadow-xl active:scale-[0.98] active:brightness-95"
           >
-            + Adicionar ao Carrinho
+            <Plus className="h-4 w-4" />
+            Adicionar ao Carrinho
           </Button>
         </div>
       </div>
