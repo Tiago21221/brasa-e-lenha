@@ -18,6 +18,7 @@ export interface Product {
   priceInCents: number
   imageUrl: string | null
   available: boolean
+  ingredients: string | null
   createdAt: Date
 }
 
@@ -95,6 +96,7 @@ export const db = {
           price_in_cents as "priceInCents",
           image_url as "imageUrl",
           available,
+          ingredients,
           created_at as "createdAt"
         FROM products 
         ${whereClause}

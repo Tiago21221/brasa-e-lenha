@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
   price_in_cents INTEGER NOT NULL,
   image_url VARCHAR(500),
   available BOOLEAN DEFAULT true,
+  ingredients TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
