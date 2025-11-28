@@ -82,7 +82,7 @@ export function ProductCard({
             size="lg"
           >
             <Plus className="h-4 w-4" />
-            Adicionar
+            + Adicionar ao Carrinho
           </Button>
         </CardFooter>
       </Card>

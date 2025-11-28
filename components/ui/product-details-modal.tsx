@@ -65,7 +65,7 @@ export function ProductDetailsModal({
               onClose();
             }}
           >
-            + Adicionar
+            + Adicionar ao Carrinho
           </Button>
         </div>
       </div>
