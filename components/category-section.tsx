@@ -22,9 +22,10 @@ export function CategorySection({ title, products }: CategorySectionProps) {
 						key={product.id}
 						id={product.id}
 						name={product.name}
-						description={product.description}
+						description={product.description || ""}
 						price={product.priceInCents}
-						image={product.imageUrl}
+						image={product.imageUrl || ""}
+						ingredients={product.ingredients || undefined}
 					/>
 				))}
 			</div>
