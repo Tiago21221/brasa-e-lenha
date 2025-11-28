@@ -27,7 +27,7 @@ export function CategorySection({ title, products }: CategorySectionProps) {
 						image={product.imageUrl || ""}
 						ingredients={product.ingredients || undefined}
 					/>
-				))}
+				)) }
 			</div>
 		</section>
 	);

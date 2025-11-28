@@ -53,6 +53,7 @@ model Order {
   customerName    String      @map("customer_name") @db.VarChar(200)
   customerPhone   String      @map("customer_phone") @db.VarChar(20)
   customerAddress String      @map("customer_address")
+  deliveryType    String?     @default("delivery") @map("delivery_type") @db.VarChar(20)
   totalCents      Int         @map("total_cents")
   status          String?     @default("pending") @db.VarChar(50)
   paymentMethod   String      @map("payment_method") @db.VarChar(50)

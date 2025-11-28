@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
-import { ShoppingBag, CreditCard, DollarSign, QrCode } from "lucide-react";
+import { ShoppingBag, CreditCard, DollarSign, QrCode, Store, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CarrinhoPage() {
@@ -29,6 +29,7 @@ export default function CarrinhoPage() {
 		address: "Rua Demo, 123 - Centro - São Paulo - SP",
 		notes: "Pedido de demonstração",
 		paymentMethod: "pix" as "pix" | "card" | "cash",
+		deliveryType: "delivery" as "delivery" | "pickup",
 	});
 
 	useEffect(() => {
@@ -41,8 +42,13 @@ export default function CarrinhoPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!formData.name || !formData.phone || !formData.address) {
+		if (!formData.name || !formData.phone) {
 			toast.error("Preencha todos os campos obrigatórios");
+			return;
+		}
+
+		if (formData.deliveryType === "delivery" && !formData.address) {
+			toast.error("Endereço é obrigatório para delivery");
 			return;
 		}
 
@@ -68,6 +74,7 @@ export default function CarrinhoPage() {
 					customerName: formData.name,
 					customerPhone: formData.phone,
 					customerAddress: formData.address,
+					deliveryType: formData.deliveryType,
 					paymentMethod: formData.paymentMethod,
 					notes: formData.notes,
 					items: items.map((item) => ({
@@ -158,10 +165,57 @@ export default function CarrinhoPage() {
 							</CardContent>
 						</Card>
 
+						{/* Delivery Type */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Tipo de Pedido</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<RadioGroup
+									value={formData.deliveryType}
+									onValueChange={(value) =>
+										setFormData({ ...formData, deliveryType: value as "delivery" | "pickup" })
+									}
+								>
+									<div className="flex items-center space-x-3 rounded-lg border p-4">
+										<RadioGroupItem value="delivery" id="delivery" />
+										<Label
+											htmlFor="delivery"
+											className="flex flex-1 cursor-pointer items-center gap-3"
+										>
+											<Truck className="h-5 w-5" />
+											<div>
+												<div className="font-semibold">Delivery (Entrega)</div>
+												<div className="text-sm text-muted-foreground">
+													Entregamos no endereço informado
+												</div>
+											</div>
+										</Label>
+									</div>
+
+									<div className="flex items-center space-x-3 rounded-lg border p-4">
+										<RadioGroupItem value="pickup" id="pickup" />
+										<Label
+											htmlFor="pickup"
+											className="flex flex-1 cursor-pointer items-center gap-3"
+										>
+											<Store className="h-5 w-5" />
+											<div>
+												<div className="font-semibold">Retirada no Restaurante</div>
+												<div className="text-sm text-muted-foreground">
+													Você retira o pedido no restaurante
+												</div>
+											</div>
+										</Label>
+									</div>
+								</RadioGroup>
+							</CardContent>
+						</Card>
+
 						{/* Customer Info */}
 						<Card>
 							<CardHeader>
-								<CardTitle>Dados para Entrega</CardTitle>
+								<CardTitle>{formData.deliveryType === "delivery" ? "Dados para Entrega" : "Dados para Retirada"}</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="space-y-2">
@@ -192,15 +246,17 @@ export default function CarrinhoPage() {
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="address">Endereço Completo *</Label>
+									<Label htmlFor="address">
+										{formData.deliveryType === "delivery" ? "Endereço Completo *" : "Endereço (Opcional)"}
+									</Label>
 									<Textarea
 										id="address"
-										placeholder="Rua, número, complemento, bairro, cidade"
+										placeholder={formData.deliveryType === "delivery" ? "Rua, número, complemento, bairro, cidade" : "Endereço para referência (opcional)"}
 										value={formData.address}
 										onChange={(e) =>
 											setFormData({ ...formData, address: e.target.value })
 										}
-										required
+										required={formData.deliveryType === "delivery"}
 									/>
 								</div>
 

@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { customerName, customerPhone, customerAddress, paymentMethod, notes, items, totalCents, stripeSessionId } =
+    const { customerName, customerPhone, customerAddress, deliveryType, paymentMethod, notes, items, totalCents, stripeSessionId } =
       body
 
     console.log("[v0] Received order request:", {
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
         customerName,
         customerPhone,
         customerAddress,
+        deliveryType: deliveryType || "delivery",
         totalCents,
         paymentMethod,
         paymentStatus: paymentMethod === "card" ? "paid" : "pending",

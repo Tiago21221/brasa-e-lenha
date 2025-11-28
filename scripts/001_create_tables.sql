@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_name VARCHAR(200) NOT NULL,
   customer_phone VARCHAR(20) NOT NULL,
   customer_address TEXT NOT NULL,
+  delivery_type VARCHAR(20) DEFAULT 'delivery',
   total_cents INTEGER NOT NULL,
   status VARCHAR(50) DEFAULT 'pending',
   payment_method VARCHAR(50) NOT NULL,

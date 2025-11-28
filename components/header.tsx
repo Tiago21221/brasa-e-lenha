@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, X, ShoppingCart, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/cart";
@@ -81,6 +81,18 @@ export function Header() {
                     {cartCount}
                   </span>
                 )}
+              </Button>
+            </Link>
+
+            <Link href="/meus-pedidos">
+              <Button
+                variant="outline"
+                size="sm"
+                className="font-semibold"
+                aria-label="Meus Pedidos"
+              >
+                <History className="mr-2 h-4 w-4" />
+                Meus Pedidos
               </Button>
             </Link>
 
@@ -172,6 +184,16 @@ export function Header() {
                   {cartCount}
                 </span>
               )}
+            </Button>
+          </Link>
+
+          <Link href="/meus-pedidos" onClick={closeMenu}>
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2 font-semibold"
+            >
+              <History className="h-5 w-5" />
+              Meus Pedidos
             </Button>
           </Link>
 
