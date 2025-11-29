@@ -84,13 +84,19 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                className="relative font-semibold"
+                className="relative font-semibold gap-2"
                 aria-label="Carrinho"
               >
                 <ShoppingCart className="h-5 w-5" />
                 Carrinho
+                {cartCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white shadow-sm">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
+
 
             <Link href="/meus-pedidos">
               <Button
@@ -170,12 +176,6 @@ export function Header() {
               aria-label="Carrinho"
             >
               <LayoutList className="h-5 w-5" />
-              <span>Cardápio</span>
-              {cartCount > 0 && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
-                  {cartCount}
-                </span>
-              )}
             </Button>
           </Link>
 
@@ -187,11 +187,6 @@ export function Header() {
             >
               <CalendarDays className="h-5 w-5" />
               <span>Reservas</span>
-              {cartCount > 0 && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
-                  {cartCount}
-                </span>
-              )}
             </Button>
           </Link>
           <Link href="/carrinho" onClick={closeMenu}>

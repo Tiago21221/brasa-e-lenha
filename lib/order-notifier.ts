@@ -21,8 +21,20 @@ export function useOrderNotifications() {
         )
         audio.play().catch(() => {}) // Silent fail if no audio permission
 
+        // Detecta se é mobile
+        const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
         toast.success("Novo pedido recebido!", {
           duration: 5000,
+          // Mobile: sobe de baixo
+          position: isMobile ? "bottom-center" : "top-right",
+          // Animação suave
+          className: "animate-slide-up",
+          style: {
+            animation: isMobile 
+              ? "toast-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1) both" 
+              : "toast-slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1) both"
+          }
         })
       }
 
