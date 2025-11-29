@@ -283,7 +283,7 @@ function ReservationCard({
               onClick={() => onStatusUpdate(reservation.id, "cancelled")}
               variant="destructive"
               size="sm"
-              className="gap-2"
+              className="gap-5"
             >
               <X className="h-4 w-4" />
               Rejeitar

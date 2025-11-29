@@ -145,7 +145,7 @@ export function Header() {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <span className="font-oswald text-xl font-bold text-with-100">
             Menu
           </span>

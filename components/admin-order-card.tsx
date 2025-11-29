@@ -17,6 +17,7 @@ import { formatPrice, formatDate, formatPhone } from "@/lib/format"
 import type { OrderWithItems } from "@/lib/types"
 import { Phone, MapPin, Clock, Store, Truck } from "lucide-react"
 import { toast } from "sonner"
+import { Separator } from "@radix-ui/react-separator"
 
 interface AdminOrderCardProps {
   order: OrderWithItems
@@ -84,7 +85,7 @@ export function AdminOrderCard({ order, onStatusUpdate }: AdminOrderCardProps) {
               </Badge>
 
               {order.deliveryType && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge className="gap-1 border border-blue-500 text-blue-600" variant="outline">
                   {order.deliveryType === "pickup" ? (
                     <>
                       <Store className="h-3 w-3" /> Retirada
@@ -147,7 +148,7 @@ export function AdminOrderCard({ order, onStatusUpdate }: AdminOrderCardProps) {
                 {/* MODAL STATUS – CENTRALIZADO PC E MOBILE */}
         <Dialog open={statusModalOpen} onOpenChange={setStatusModalOpen}>
           <DialogTrigger asChild>
-            <Button variant="secondary" className="w-full">
+            <Button className="w-full border border-wait bg-red-800 text-wait hover:bg-red-600/50">
               Atualizar Status
             </Button>
           </DialogTrigger>
@@ -184,15 +185,6 @@ export function AdminOrderCard({ order, onStatusUpdate }: AdminOrderCardProps) {
               ))}
             </div>
 
-            <DialogFooter>
-              <Button
-                variant="destructive"
-                onClick={() => setStatusModalOpen(false)}
-                className="w-full sm:w-auto"
-              >
-                Fechar
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardContent>
