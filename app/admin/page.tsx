@@ -7,7 +7,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import type { OrderWithItems } from "@/lib/types"
-import { RefreshCw, Package, Clock, ChefHat, Truck, CheckCircle2, Calendar } from "lucide-react"
+import {
+  RefreshCw,
+  Package,
+  Clock,
+  ChefHat,
+  Truck,
+  CheckCircle2,
+  Calendar,
+} from "lucide-react"
 import { toast } from "sonner"
 import { useOrderNotifications } from "@/lib/order-notifier"
 import Link from "next/link"
@@ -34,7 +42,6 @@ export default function AdminPage() {
 
       const data = await response.json()
 
-      // Fetch items for each order
       const ordersWithItems = await Promise.all(
         data.orders.map(async (order: any) => {
           const itemsResponse = await fetch(`/api/orders/${order.id}`)
@@ -91,8 +98,12 @@ export default function AdminPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="font-oswald text-3xl font-bold md:text-4xl">Painel Administrativo</h1>
-            <p className="text-muted-foreground">Gerencie os pedidos e reservas do restaurante</p>
+            <h1 className="font-oswald text-3xl font-bold md:text-4xl">
+              Painel Administrativo
+            </h1>
+            <p className="text-muted-foreground">
+              Gerencie os pedidos e reservas do restaurante
+            </p>
           </div>
           <div className="flex gap-2">
             <Link href="/admin/reservas">
@@ -101,8 +112,17 @@ export default function AdminPage() {
                 Gerenciar Reservas
               </Button>
             </Link>
-            <Button onClick={handleRefresh} disabled={refreshing} variant="outline" size="sm">
-              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${
+                  refreshing ? "animate-spin" : ""
+                }`}
+              />
               Atualizar
             </Button>
           </div>
@@ -119,8 +139,12 @@ export default function AdminPage() {
                     <Icon className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="font-oswald text-3xl font-bold">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
+                    <p className="font-oswald text-3xl font-bold">
+                      {stat.value}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -130,44 +154,128 @@ export default function AdminPage() {
 
         {/* Orders List */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">Todos ({orders.length})</TabsTrigger>
-            <TabsTrigger value="pending">Novos ({getStatusCount("pending")})</TabsTrigger>
-            <TabsTrigger value="confirmed">Confirmados ({getStatusCount("confirmed")})</TabsTrigger>
-            <TabsTrigger value="preparing">Preparando ({getStatusCount("preparing")})</TabsTrigger>
-            <TabsTrigger value="delivering">Entregando ({getStatusCount("delivering")})</TabsTrigger>
-            <TabsTrigger value="completed">Concluídos ({getStatusCount("completed")})</TabsTrigger>
-          </TabsList>
+         <TabsList
+            className=" 
+              mb-8 md:mb-6     
+              flex flex-wrap gap-2
+              sm:flex-nowrap sm:gap-2
+              border-t-0 border-b-0    /* remove bordas de cima e baixo do container */
+              bg-transparent           /* tira fundo do container */
+            "
+          >
+            <TabsTrigger
+              value="all"
+              className="
+                border border-red-700
+                bg-zinc-900              /* quase preto, diferença sutil */
+                data-[state=active]:bg-black
+              "
+            >
+              Todos ({orders.length})
+            </TabsTrigger>
 
+            <TabsTrigger
+              value="pending"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Novos ({getStatusCount('pending')})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="confirmed"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Confirmados ({getStatusCount('confirmed')})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="preparing"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Preparando ({getStatusCount('preparing')})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="delivering"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Entregando ({getStatusCount('delivering')})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="completed"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Concluídos ({getStatusCount('completed')})
+            </TabsTrigger>
+
+
+            </TabsList>
           <TabsContent value="all" className="space-y-4">
             {orders.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <Package className="mb-4 h-12 w-12 text-muted-foreground" />
-                  <p className="text-muted-foreground">Nenhum pedido encontrado</p>
+                  <p className="text-muted-foreground">
+                    Nenhum pedido encontrado
+                  </p>
                 </CardContent>
               </Card>
             ) : (
-              orders.map((order) => <AdminOrderCard key={order.id} order={order} onStatusUpdate={fetchOrders} />)
+              orders.map((order) => (
+                <AdminOrderCard
+                  key={order.id}
+                  order={order}
+                  onStatusUpdate={fetchOrders}
+                />
+              ))
             )}
           </TabsContent>
 
-          {["pending", "confirmed", "preparing", "delivering", "completed"].map((status) => (
-            <TabsContent key={status} value={status} className="space-y-4">
-              {filterOrders(status).length === 0 ? (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Package className="mb-4 h-12 w-12 text-muted-foreground" />
-                    <p className="text-muted-foreground">Nenhum pedido com este status</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                filterOrders(status).map((order) => (
-                  <AdminOrderCard key={order.id} order={order} onStatusUpdate={fetchOrders} />
-                ))
-              )}
-            </TabsContent>
-          ))}
+          {["pending", "confirmed", "preparing", "delivering", "completed"].map(
+            (status) => (
+              <TabsContent key={status} value={status} className="space-y-4">
+                {filterOrders(status).length === 0 ? (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Package className="mb-4 h-12 w-12 text-muted-foreground" />
+                      <p className="text-muted-foreground">
+                        Nenhum pedido com este status
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  filterOrders(status).map((order) => (
+                    <AdminOrderCard
+                      key={order.id}
+                      order={order}
+                      onStatusUpdate={fetchOrders}
+                    />
+                  ))
+                )}
+              </TabsContent>
+            ),
+          )}
         </Tabs>
       </main>
     </>
