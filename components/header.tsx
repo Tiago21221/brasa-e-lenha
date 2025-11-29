@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ShoppingCart, History } from "lucide-react";
+import { Menu, X, ShoppingCart, History, CalendarDays, LayoutList, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/cart";
@@ -56,14 +56,26 @@ export function Header() {
           {/* Navegação desktop */}
           <nav className="hidden items-center gap-3 md:flex">
             <Link href="/cardapio">
-              <Button variant="outline" size="sm" className="font-semibold">
-                cardápio
+              <Button
+                variant="outline"
+                size="sm"
+                className="relative font-semibold"
+                aria-label="Cardápio"
+              >
+                <LayoutList className="h-5 w-5" />
+                Cardápio
               </Button>
             </Link>
 
             <Link href="/reservas">
-              <Button variant="outline" size="sm" className="font-semibold">
-                Reserva
+              <Button
+                variant="outline"
+                size="sm"
+                className="relative font-semibold"
+                aria-label="Carrinho"
+              >
+                <CalendarDays className="h-5 w-5" />
+                Reservas
               </Button>
             </Link>
 
@@ -71,16 +83,12 @@ export function Header() {
             <Link href="/carrinho">
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 className="relative font-semibold"
                 aria-label="Carrinho"
               >
                 <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
-                    {cartCount}
-                  </span>
-                )}
+                Carrinho
               </Button>
             </Link>
 
@@ -88,20 +96,22 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                className="font-semibold"
-                aria-label="Meus Pedidos"
+                className="relative font-semibold"
+                aria-label="meus pedidos"
               >
-                <History className="mr-2 h-4 w-4" />
+                <History className="h-5 w-5" />
                 Meus Pedidos
               </Button>
             </Link>
 
             <Link href="/admin">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="font-semibold text-red-600"
+                className="w-full justify-start font-semibold text-red-600"
+                aria-label="Admin"
               >
+                <LockKeyhole className="h-5 w-5" />
                 Admin
               </Button>
             </Link>
@@ -150,27 +160,40 @@ export function Header() {
         </div>
 
         {/* Barrinha divisória abaixo do título */}
-        <Separator className="mb-4" />
+        <Separator className="mb-2" />
 
         <nav className="flex flex-col gap-3">
           <Link href="/cardapio" onClick={closeMenu}>
             <Button
               variant="outline"
-              className="w-full justify-start font-semibold"
+              className="relative w-full justify-start gap-2 font-semibold"
+              aria-label="Carrinho"
             >
-              cardápio
+              <LayoutList className="h-5 w-5" />
+              <span>Cardápio</span>
+              {cartCount > 0 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </Link>
 
           <Link href="/reservas" onClick={closeMenu}>
             <Button
               variant="outline"
-              className="w-full justify-start font-semibold"
+              className="relative w-full justify-start gap-2 font-semibold"
+              aria-label="Carrinho"
             >
-              Reserva
+              <CalendarDays className="h-5 w-5" />
+              <span>Reservas</span>
+              {cartCount > 0 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex h-5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </Link>
-
           <Link href="/carrinho" onClick={closeMenu}>
             <Button
               variant="outline"
@@ -199,9 +222,10 @@ export function Header() {
 
           <Link href="/admin" onClick={closeMenu}>
             <Button
-              variant="ghost"
+              variant="outline"
               className="w-full justify-start font-semibold text-red-600"
             >
+            <LockKeyhole className="mr-2 h-4 w-4" />
               Admin
             </Button>
           </Link>
