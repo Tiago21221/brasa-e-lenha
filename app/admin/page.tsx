@@ -155,7 +155,7 @@ export default function AdminPage() {
         {/* Orders List */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
          <TabsList
-            className=" 
+            className="
               mb-8 md:mb-6     
               flex flex-wrap gap-2
               sm:flex-nowrap sm:gap-2

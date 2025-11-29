@@ -6,92 +6,57 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, Mail, Phone, Check, X, CalendarIcon, RefreshCw } from "lucide-react"
+import { Calendar, Clock, Users, Mail, Phone, Check, X, CalendarIcon } from "lucide-react"
 import { toast } from "sonner"
-
-type Reservation = {
-  id: string
-  customerName: string
-  customerEmail: string
-  customerPhone?: string
-  date: string
-  time: string
-  partySize: number
-  status: "pending" | "confirmed" | "cancelled"
-  specialRequests?: string
-  createdAt: string
-}
+import { getReservations, updateReservationStatus, type Reservation } from "@/lib/reservations"
 
 export default function AdminReservasPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-
-  const fetchReservations = async () => {
-    try {
-      setRefreshing(true)
-      const response = await fetch("/api/reservations")
-      if (!response.ok) throw new Error("Erro ao buscar reservas")
-      
-      const data = await response.json()
-      setReservations(data.reservations.sort((a: Reservation, b: Reservation) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ))
-    } catch (error) {
-      console.error("Erro:", error)
-      toast.error("Erro ao carregar reservas")
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
 
   useEffect(() => {
-    fetchReservations()
+    const loadReservations = () => {
+      const data = getReservations()
+      setReservations(data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))
+      setLoading(false)
+    }
+
+    loadReservations()
 
     // Refresh every 10 seconds
-    const interval = setInterval(fetchReservations, 10000)
+    const interval = setInterval(loadReservations, 10000)
     return () => clearInterval(interval)
   }, [])
 
-  const handleStatusUpdate = async (id: string, status: "confirmed" | "cancelled") => {
-    try {
-      const response = await fetch(`/api/reservations/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-      })
-
-      if (!response.ok) throw new Error("Erro ao atualizar status")
-
-      setReservations((prev) => 
-        prev.map((r) => (r.id === id ? { ...r, status } : r))
-      )
-      toast.success(status === "confirmed" ? "Reserva confirmada" : "Reserva cancelada")
-    } catch (error) {
-      toast.error("Erro ao atualizar reserva")
-    }
-  }
-
-  const handleRefresh = () => {
-    fetchReservations()
+  const handleStatusUpdate = (id: string, status: "confirmed" | "cancelled") => {
+    updateReservationStatus(id, status)
+    setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
+    toast.success(status === "confirmed" ? "Reserva confirmada" : "Reserva cancelada")
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "yellow"
-      case "confirmed": return "green"
-      case "cancelled": return "red"
-      default: return "gray"
+      case "pending":
+        return "yellow"
+      case "confirmed":
+        return "green"
+      case "cancelled":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "pending": return "Aguardando"
-      case "confirmed": return "Confirmada"
-      case "cancelled": return "Cancelada"
-      default: return status
+      case "pending":
+        return "Aguardando"
+      case "confirmed":
+        return "Confirmada"
+      case "cancelled":
+        return "Cancelada"
+      default:
+        return status
     }
   }
 
@@ -128,15 +93,9 @@ export default function AdminReservasPage() {
     <>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="mb-2 font-oswald text-3xl font-bold md:text-4xl">Gerenciador de Reservas</h1>
-            <p className="text-muted-foreground">Aceite ou rejeite reservas de mesas</p>
-          </div>
-          <Button onClick={handleRefresh} disabled={refreshing} variant="outline" size="sm">
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            Atualizar
-          </Button>
+        <div className="mb-8">
+          <h1 className="mb-2 font-oswald text-3xl font-bold md:text-4xl">Gerenciador de Reservas</h1>
+          <p className="text-muted-foreground">Aceite ou rejeite reservas de mesas</p>
         </div>
 
         {/* Stats */}
@@ -240,19 +199,27 @@ function ReservationCard({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "yellow"
-      case "confirmed": return "green"
-      case "cancelled": return "red"
-      default: return "gray"
+      case "pending":
+        return "yellow"
+      case "confirmed":
+        return "green"
+      case "cancelled":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "pending": return "Aguardando"
-      case "confirmed": return "Confirmada"
-      case "cancelled": return "Cancelada"
-      default: return status
+      case "pending":
+        return "Aguardando"
+      case "confirmed":
+        return "Confirmada"
+      case "cancelled":
+        return "Cancelada"
+      default:
+        return status
     }
   }
 
