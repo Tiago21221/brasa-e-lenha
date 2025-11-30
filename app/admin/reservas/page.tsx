@@ -15,10 +15,17 @@ export default function AdminReservasPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadReservations = () => {
-      const data = getReservations()
-      setReservations(data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))
-      setLoading(false)
+    const loadReservations = async () => {
+      setLoading(true)
+      try {
+        const data = await getReservations()
+        setReservations(data)
+      } catch (error) {
+        console.error("Erro ao carregar reservas:", error)
+        toast.error("Erro ao carregar reservas")
+      } finally {
+        setLoading(false)
+      }
     }
 
     loadReservations()
@@ -28,10 +35,15 @@ export default function AdminReservasPage() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleStatusUpdate = (id: string, status: "confirmed" | "cancelled") => {
-    updateReservationStatus(id, status)
-    setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
-    toast.success(status === "confirmed" ? "Reserva confirmada" : "Reserva cancelada")
+  const handleStatusUpdate = async (id: number, status: "confirmed" | "cancelled") => {
+    try {
+      await updateReservationStatus(id, status)
+      setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
+      toast.success(status === "confirmed" ? "Reserva confirmada" : "Reserva cancelada")
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error)
+      toast.error("Erro ao atualizar status da reserva")
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -186,7 +198,7 @@ function ReservationCard({
   onStatusUpdate,
 }: {
   reservation: Reservation
-  onStatusUpdate: (id: string, status: "confirmed" | "cancelled") => void
+  onStatusUpdate: (id: number, status: "confirmed" | "cancelled") => void
 }) {
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("pt-BR", {
@@ -223,12 +235,19 @@ function ReservationCard({
     }
   }
 
+  // Extrair hora da nota se existir
+  const extractTimeFromNote = (note?: string) => {
+    if (!note) return ""
+    const timeMatch = note.match(/(\d{2}:\d{2})/)
+    return timeMatch ? timeMatch[1] : ""
+  }
+
   return (
     <Card>
       <CardContent className="p-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h3 className="font-oswald text-lg font-bold">{reservation.customerName}</h3>
+            <h3 className="font-oswald text-lg font-bold">{reservation.name}</h3>
             <Badge variant={getStatusColor(reservation.status) as any} className="mt-1">
               {getStatusLabel(reservation.status)}
             </Badge>
@@ -242,29 +261,22 @@ function ReservationCard({
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{reservation.time}</span>
+            <span>{extractTimeFromNote(reservation.note)}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span>{reservation.partySize} pessoas</span>
+            <span>{reservation.people} pessoas</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="truncate">{reservation.customerEmail}</span>
+            <Phone className="h-4 w-4 text-muted-foreground" />
+            <span className="truncate">{reservation.phone}</span>
           </div>
         </div>
 
-        {reservation.customerPhone && (
-          <div className="mb-4 flex items-center gap-2 text-sm">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            <span>{reservation.customerPhone}</span>
-          </div>
-        )}
-
-        {reservation.specialRequests && (
+        {reservation.note && (
           <div className="mb-4 rounded-lg bg-muted p-3">
-            <p className="text-xs font-semibold text-muted-foreground">Observações Especiais</p>
-            <p className="mt-1 text-sm">{reservation.specialRequests}</p>
+            <p className="text-xs font-semibold text-muted-foreground">Observações</p>
+            <p className="mt-1 text-sm">{reservation.note}</p>
           </div>
         )}
 
@@ -283,7 +295,7 @@ function ReservationCard({
               onClick={() => onStatusUpdate(reservation.id, "cancelled")}
               variant="destructive"
               size="sm"
-              className="gap-5"
+              className="gap-2"
             >
               <X className="h-4 w-4" />
               Rejeitar

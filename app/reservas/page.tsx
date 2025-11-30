@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,9 +16,7 @@ import {
   AVAILABLE_TIMES,
   MAX_PARTY_SIZE,
   saveReservation,
-  generateId,
   getAvailableSlots,
-  type Reservation,
 } from "@/lib/reservations"
 
 export default function ReservasPage() {
@@ -37,10 +35,19 @@ export default function ReservasPage() {
   const [availableSlots, setAvailableSlots] = useState<string[]>(AVAILABLE_TIMES)
   const [submitting, setSubmitting] = useState(false)
 
+  // Atualizar slots disponíveis quando a data muda
+  useEffect(() => {
+    const updateSlots = async () => {
+      if (formData.date) {
+        const slots = await getAvailableSlots(formData.date)
+        setAvailableSlots(slots)
+      }
+    }
+    updateSlots()
+  }, [formData.date])
+
   const handleDateChange = (date: string) => {
     setFormData({ ...formData, date, time: "" })
-    const slots = getAvailableSlots(date)
-    setAvailableSlots(slots)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,21 +61,20 @@ export default function ReservasPage() {
     }
 
     try {
-      const reservation: Reservation = {
-        id: generateId(),
-        customerName: formData.customerName,
-        customerEmail: formData.customerEmail,
-        customerPhone: formData.customerPhone,
+      const reservationData = {
+        name: formData.customerName,
+        phone: formData.customerPhone || formData.customerEmail,
         date: formData.date,
+        people: Number.parseInt(formData.partySize),
         time: formData.time,
-        partySize: Number.parseInt(formData.partySize),
-        specialRequests: formData.specialRequests,
-        status: "pending",
-        createdAt: new Date().toISOString(),
+        note: formData.specialRequests 
+          ? `${formData.time} - ${formData.customerEmail} - ${formData.specialRequests}`
+          : `${formData.time} - ${formData.customerEmail}`,
       }
 
-      saveReservation(reservation)
+      await saveReservation(reservationData)
       toast.success("Reserva solicitada com sucesso! Aguarde confirmação do restaurante.")
+      
       setFormData({
         customerName: "",
         customerEmail: "",

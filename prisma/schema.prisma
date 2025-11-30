@@ -92,6 +92,7 @@ model Reservation {
   date      DateTime
   people    Int
   note      String?
+  status    String   @default("pending") // <--- ADICIONAR
   createdAt DateTime @default(now())
 
   @@map("reservations")
