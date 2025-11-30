@@ -72,7 +72,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 className="relative font-semibold"
-                aria-label="Carrinho"
+                aria-label="Reservas"
               >
                 <CalendarDays className="h-5 w-5" />
                 Reservas
@@ -176,6 +176,7 @@ export function Header() {
               aria-label="Carrinho"
             >
               <LayoutList className="h-5 w-5" />
+              <span>Cardápio</span>
             </Button>
           </Link>
 
