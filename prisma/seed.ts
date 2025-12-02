@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import { subDays, startOfDay } from 'date-fns'
 
 const prisma = new PrismaClient()
 
@@ -223,7 +224,124 @@ async function main() {
   await prisma.product.createMany({ data: products })
 
   console.log("✅ Products created")
+  
+  // AGORA CRIAR PEDIDOS PARA ESTATÍSTICAS
+  await seedStatsForDashboard()
+  
   console.log("🎉 Seed completed successfully!")
+}
+
+// Função específica para criar pedidos de estatísticas
+async function seedStatsForDashboard() {
+  console.log("📊 Criando pedidos para dashboard de estatísticas...")
+  
+  const products = await prisma.product.findMany()
+  if (products.length === 0) {
+    console.log("⚠️  Nenhum produto encontrado para criar pedidos")
+    return
+  }
+  
+  const today = startOfDay(new Date())
+  const orders = []
+  
+  // Criar pedidos para os últimos 7 dias
+  for (let i = 0; i < 7; i++) {
+    const date = subDays(today, i)
+    const orderCount = Math.floor(Math.random() * 20) + 10 // 10-30 pedidos por dia
+    
+    console.log(`📅 Dia ${i} (${date.toLocaleDateString('pt-BR')}): ${orderCount} pedidos`)
+    
+    for (let j = 0; j < orderCount; j++) {
+      // Escolher produtos aleatórios para o pedido
+      const numItems = Math.floor(Math.random() * 3) + 1 // 1-4 itens por pedido
+      const selectedProducts = []
+      let totalCents = 0
+      
+      for (let k = 0; k < numItems; k++) {
+        const product = products[Math.floor(Math.random() * products.length)]
+        const quantity = Math.floor(Math.random() * 2) + 1 // 1-3 unidades
+        selectedProducts.push({ product, quantity })
+        totalCents += product.priceInCents * quantity
+      }
+      
+      // Distribuir status: mais recentes = pending, mais antigos = completed
+      let status: string
+      if (i === 0) {
+        // Hoje: vários status
+        const statusOptions = ['pending', 'confirmed', 'preparing', 'delivering']
+        status = statusOptions[Math.floor(Math.random() * statusOptions.length)]
+      } else if (i === 1) {
+        // Ontem: alguns ainda entregando, outros completos
+        status = Math.random() > 0.3 ? 'completed' : 'delivering'
+      } else {
+        // Dias anteriores: todos completos
+        status = 'completed'
+      }
+      
+      // Criar data com hora específica
+      const orderDate = new Date(date)
+      orderDate.setHours(8 + Math.floor(Math.random() * 12)) // Entre 8h e 20h
+      orderDate.setMinutes(Math.floor(Math.random() * 60))
+      
+      // Criar cliente fictício
+      const customer = await prisma.customer.create({
+        data: {
+          name: `Cliente ${String.fromCharCode(65 + i)}${j + 1}`,
+          email: `cliente${i}${j}@exemplo.com`,
+          phone: `1199999${String(j + 1000).slice(-4)}`,
+        }
+      })
+      
+      // Criar o pedido
+      const order = await prisma.order.create({
+        data: {
+          customerId: customer.id,
+          status,
+          totalCents,
+          deliveryAddress: `Rua Exemplo ${j + 1}, ${100 + j} - Centro, São Paulo - SP`,
+          deliveryType: ['delivery', 'pickup'][Math.floor(Math.random() * 2)] as any,
+          paymentMethod: ['credit_card', 'debit_card', 'cash', 'pix'][Math.floor(Math.random() * 4)] as any,
+          notes: i === 0 && j === 0 ? 'Sem cebola por favor' : null,
+          createdAt: orderDate,
+          updatedAt: orderDate,
+        }
+      })
+      
+      // Adicionar itens ao pedido
+      for (const { product, quantity } of selectedProducts) {
+        await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: product.id,
+            quantity,
+            priceInCents: product.priceInCents,
+          }
+        })
+      }
+      
+      orders.push(order)
+    }
+  }
+  
+  console.log(`✅ ${orders.length} pedidos criados com sucesso para estatísticas!`)
+  
+  // Calcular estatísticas
+  const allOrders = await prisma.order.findMany()
+  const recentOrders = allOrders.filter(order => 
+    new Date(order.createdAt) >= subDays(today, 7)
+  )
+  const todayOrders = allOrders.filter(order =>
+    startOfDay(new Date(order.createdAt)).getTime() === today.getTime()
+  )
+  
+  const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalCents, 0) / 100
+  const revenueLast7Days = recentOrders.reduce((sum, order) => sum + order.totalCents, 0) / 100
+  
+  console.log('📈 Estatísticas geradas:')
+  console.log(`- Últimos 7 dias: R$ ${revenueLast7Days.toFixed(2)}`)
+  console.log(`- Total acumulado: R$ ${totalRevenue.toFixed(2)}`)
+  console.log(`- Pedidos hoje: ${todayOrders.length}`)
+  console.log(`- Pedidos últimos 7 dias: ${recentOrders.length}`)
 }
 
 main()

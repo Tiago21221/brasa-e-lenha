@@ -1,5 +1,249 @@
-import { redirect } from "next/navigation";
+"use client"
 
-export default function AdminRootPage() {
-  redirect("/admin/pedidos");
+import { useEffect, useState } from "react"
+import { Header } from "@/components/header"
+import { AdminOrderCard } from "@/components/admin-order-card"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import type { OrderWithItems } from "@/lib/types"
+import { RefreshCw, Package, Clock, ChefHat, Truck, CheckCircle2, ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
+import { useOrderNotifications } from "@/lib/order-notifier"
+import Link from "next/link"
+
+export default function PedidosPage() {
+  useOrderNotifications()
+
+  const [orders, setOrders] = useState<OrderWithItems[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
+
+  useEffect(() => {
+    fetchOrders()
+
+    const interval = setInterval(fetchOrders, 15000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch("/api/orders")
+      if (!response.ok) throw new Error("Failed to fetch orders")
+
+      const data = await response.json()
+
+      const ordersWithItems = await Promise.all(
+        data.orders.map(async (order: any) => {
+          const itemsResponse = await fetch(`/api/orders/${order.id}`)
+          const itemsData = await itemsResponse.json()
+          return itemsData.order
+        }),
+      )
+
+      setOrders(ordersWithItems)
+    } catch (error) {
+      console.error("[v0] Error fetching orders:", error)
+      toast.error("Erro ao carregar pedidos")
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    fetchOrders()
+  }
+
+  const filterOrders = (status?: string) => {
+    if (!status) return orders
+    return orders.filter((order) => order.status === status)
+  }
+
+  const getStatusCount = (status: string) => {
+    return orders.filter((order) => order.status === status).length
+  }
+
+  const stats = [
+    { label: "Aguardando", value: getStatusCount("pending"), icon: Clock, color: "text-yellow-500" },
+    { label: "Confirmados", value: getStatusCount("confirmed"), icon: CheckCircle2, color: "text-blue-500" },
+    { label: "Preparando", value: getStatusCount("preparing"), icon: ChefHat, color: "text-orange-500" },
+    { label: "Entregando", value: getStatusCount("delivering"), icon: Truck, color: "text-purple-500" },
+    { label: "Concluídos", value: getStatusCount("completed"), icon: CheckCircle2, color: "text-green-500" },
+  ]
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">Carregando pedidos...</div>
+        </main>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+          <div className="flex items-center gap-4">
+            <Link href="/admin">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+            </Link>
+            <div>
+              <h1 className="font-oswald text-3xl font-bold md:text-4xl">Gerenciamento de Pedidos</h1>
+              <p className="text-muted-foreground">Visualize e gerencie todos os pedidos do sistema</p>
+            </div>
+          </div>
+          <div className="flex w-full flex-wrap gap-2 md:w-auto">
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+              className="w-full md:w-auto bg-transparent"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              Atualizar
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {stats.map((stat) => {
+            const Icon = stat.icon
+            return (
+              <Card key={stat.label}>
+                <CardContent className="flex items-center gap-4 p-6">
+                  <div className={`rounded-full bg-muted p-3 ${stat.color}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="font-oswald text-3xl font-bold">{stat.value}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+
+        {/* Orders List */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList
+            className="
+              mb-8 md:mb-6     
+              flex flex-wrap gap-2
+              sm:flex-nowrap sm:gap-2
+              border-t-0 border-b-0
+              bg-transparent
+            "
+          >
+            <TabsTrigger
+              value="all"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Todos ({orders.length})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="pending"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Aguardando ({getStatusCount("pending")})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="confirmed"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Confirmados ({getStatusCount("confirmed")})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="preparing"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Preparando ({getStatusCount("preparing")})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="delivering"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Entregando ({getStatusCount("delivering")})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="completed"
+              className="
+                border border-red-700
+                bg-zinc-900
+                data-[state=active]:bg-black
+              "
+            >
+              Concluídos ({getStatusCount("completed")})
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="all" className="space-y-4">
+            {orders.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Package className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="text-muted-foreground">Nenhum pedido encontrado</p>
+                </CardContent>
+              </Card>
+            ) : (
+              orders.map((order) => <AdminOrderCard key={order.id} order={order} onStatusUpdate={fetchOrders} />)
+            )}
+          </TabsContent>
+
+          {["pending", "confirmed", "preparing", "delivering", "completed"].map((status) => (
+            <TabsContent key={status} value={status} className="space-y-4">
+              {filterOrders(status).length === 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Package className="mb-4 h-12 w-12 text-muted-foreground" />
+                    <p className="text-muted-foreground">Nenhum pedido com este status</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                filterOrders(status).map((order) => (
+                  <AdminOrderCard key={order.id} order={order} onStatusUpdate={fetchOrders} />
+                ))
+              )}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </main>
+    </>
+  )
 }

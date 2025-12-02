@@ -227,3 +227,4 @@ INSERT INTO products (category_id, name, description, price_in_cents, image_url,
   '/Suco natural de abacaxi com hortelã.jpg',
   true
 );
+
