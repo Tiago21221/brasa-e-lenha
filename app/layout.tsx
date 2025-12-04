@@ -11,7 +11,7 @@ const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" })
 export const metadata: Metadata = {
   title: "Brasa e Lenha - Delivery de Churrasco",
   description: "As melhores carnes defumadas e grelhadas na brasa, direto para sua casa",
-  generator: "v0.app",
+  generator: "next.js",
   icons: {
     icon: [
       {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       },
       {
         url: "/icon.svg",
-        type: "image/svg+xml",
+        type: "image/png+xml",
       },
     ],
     apple: "/apple-icon.png",
