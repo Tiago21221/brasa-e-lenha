@@ -121,9 +121,6 @@ export default function AdminReservasPage() {
     { icon: Package, label: "Pedidos", href: "/admin/pedidos", active: false },
     { icon: ShoppingBag, label: "Produtos", href: "/admin/produtos", active: false },
     { icon: Calendar, label: "Reservas", href: "/admin/reservas", active: true },
-    { icon: Users, label: "Clientes", href: "/admin/clientes", active: false },
-    { icon: Bell, label: "Notificações", href: "/admin/notificacoes", active: false },
-    { icon: Settings, label: "Configurações", href: "/admin/configuracoes", active: false },
   ]
 
   if (loading) {

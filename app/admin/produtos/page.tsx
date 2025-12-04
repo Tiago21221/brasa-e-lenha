@@ -311,9 +311,6 @@ export default function ProdutosPage() {
     { icon: Package, label: "Pedidos", href: "/admin/pedidos", active: false },
     { icon: ShoppingBag, label: "Produtos", href: "/admin/produtos", active: true },
     { icon: Calendar, label: "Reservas", href: "/admin/reservas" },
-    { icon: Users, label: "Clientes", href: "/admin/clientes" },
-    { icon: Bell, label: "Notificações", href: "/admin/notificacoes" },
-    { icon: Settings, label: "Configurações", href: "/admin/configuracoes" },
   ]
 
   const getProductStats = () => {

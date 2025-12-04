@@ -103,9 +103,6 @@ export default function PedidosPage() {
     { icon: Package, label: "Pedidos", href: "/admin/pedidos", active: true },
     { icon: ShoppingBag, label: "Produtos", href: "/admin/produtos" },
     { icon: Calendar, label: "Reservas", href: "/admin/reservas" },
-    { icon: Users, label: "Clientes", href: "/admin/clientes" },
-    { icon: Bell, label: "Notificações", href: "/admin/notificacoes" },
-    { icon: Settings, label: "Configurações", href: "/admin/configuracoes" },
   ]
 
   if (loading) {
